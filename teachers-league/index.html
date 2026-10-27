@@ -19,12 +19,13 @@ body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic 
 
 /* 1. 플로팅 버튼: 박스가 하단 20px에 고정된 뒤 제자리에서 버튼만 남기고 줄어듦 */
 .hero-cta{cursor:pointer;transition:box-shadow .4s ease}
-.hero-bar{z-index:100;transition:width .5s cubic-bezier(.4,0,.2,1),padding .5s cubic-bezier(.4,0,.2,1),gap .5s ease,background-color .4s ease,box-shadow .4s ease,opacity .3s ease,transform .3s ease}
-.hero-bar.bar-fixed{position:fixed!important;top:auto!important;bottom:calc(20px / var(--z,1));animation:barIn .3s ease both}
-@keyframes barIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/*fl*/.hero-bar{z-index:100;transition:top .6s cubic-bezier(.4,0,.2,1),left .6s cubic-bezier(.4,0,.2,1),right .6s cubic-bezier(.4,0,.2,1),width .6s cubic-bezier(.4,0,.2,1),padding .5s cubic-bezier(.4,0,.2,1),gap .5s ease,background-color .4s ease,box-shadow .4s ease,opacity .3s ease,transform .3s ease}
+.hero-bar.bar-fixed{position:fixed!important;bottom:auto}
+.hero-bar.bar-pinned{top:auto!important;bottom:calc(20px / var(--z,1))}
+.no-tr,.no-tr *{transition:none!important}
 .hero-bar.bar-docked{padding:0!important;gap:0!important;background-color:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
 .hero-bar:not(.hero-bar--mo).bar-docked{width:280px!important}
-.bar-copy{overflow:hidden;max-height:120px;transition:opacity .3s ease,flex-basis .5s cubic-bezier(.4,0,.2,1),flex-grow .5s cubic-bezier(.4,0,.2,1),max-height .5s cubic-bezier(.4,0,.2,1),transform .4s ease;transform-origin:0 50%}
+.bar-copy{overflow:hidden;max-height:120px;transition:opacity .3s ease,flex-basis .6s cubic-bezier(.4,0,.2,1),flex-grow .6s cubic-bezier(.4,0,.2,1),max-height .6s cubic-bezier(.4,0,.2,1),transform .4s ease;transform-origin:0 50%}
 .hero-bar:not(.hero-bar--mo) .bar-copy p{white-space:nowrap}
 .bar-docked .bar-copy{opacity:0;flex:0 0 0!important;max-height:0;transform:scale(.85)}
 .bar-docked .hero-cta{box-shadow:0 6px 18px rgba(81,88,215,.35)}
@@ -95,15 +96,15 @@ body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic 
 .calc-chev{transition:transform .2s ease}
 .calc-acc:not(.is-open) .calc-chev{transform:scaleY(-1)}
 
-/* 모바일 플로팅 버튼 너비 310 고정 (390 기준) */
-.hero-bar--mo{transition-property:left,right,width,padding,gap,background-color,box-shadow,opacity,transform}
-.hero-bar--mo.bar-docked{left:40px!important;right:40px!important}
 /* 반응형 전환 */
 .mo-view{display:none;width:390px;overflow-x:clip}
 @media (max-width:767px){.pc-view{display:none}.mo-view{display:block}}
 .mo-header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid #e6e6e6;box-sizing:border-box}
 .mo-header img{display:block;height:22px;width:auto}
 .mo-title{background:#f1f2f4;padding:24px 20px 20px;margin:0;font:600 24px/1.334 'Pretendard',sans-serif;letter-spacing:-.5px;color:#0d0f14}
+
+/* 모바일 플로팅 버튼 너비 310 고정 (390 기준) */
+.hero-bar--mo.bar-docked{left:40px!important;right:40px!important}
 
 /* ===== 잇올 사이트 틀 (피그마 6091:7162) ===== */
 .site-banner{background:#0f0f14;display:flex;justify-content:center;padding:16px 60px}
@@ -191,19 +192,36 @@ body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic 
   document.querySelectorAll('.fx-sec').forEach(function(s){io.observe(s)});
 
   function initView(root){
-    // 1. 플로팅 버튼
-    var bar=root.querySelector('.hero-bar'), end=root.querySelector('.s-end');
-    if(bar){
-      var docked=false, tok=0, IN=reduce?0:300, DUR=reduce?0:520;
-      function later(ms,fn){var t=++tok;setTimeout(function(){if(t===tok)fn()},ms)}
-      function dock(){bar.classList.add('bar-fixed'); later(IN,function(){bar.classList.add('bar-docked')})}
-      function undock(){bar.classList.remove('bar-docked'); later(DUR,function(){bar.classList.remove('bar-fixed')})}
+    // 1. 플로팅 버튼: KV 자리에서 줄어들며 하단 20px로 부드럽게 이동
+    var bar=root.querySelector('.hero-bar'), hero=root.querySelector('.s-hero'), cta=root.querySelector('.hero-cta'), end=root.querySelector('.s-end');
+    if(bar&&hero&&cta){
+      var docked=false, tok=0, DUR=reduce?0:620, BASE=bar.offsetTop, GAP=20;
+      function Z(){return parseFloat(getComputedStyle(bar).getPropertyValue('--z'))||1}
+      function later(fn){var t=++tok;setTimeout(function(){if(t===tok)fn()},DUR)}
+      function freeze(fn){bar.classList.add('no-tr');fn();bar.offsetHeight;bar.classList.remove('no-tr')}
+      function dock(anim){
+        var z=Z(), r=bar.getBoundingClientRect();
+        freeze(function(){bar.classList.remove('bar-pinned');bar.classList.add('bar-fixed');bar.style.top=(r.top/z)+'px'});
+        if(!anim)bar.classList.add('no-tr');
+        bar.classList.add('bar-docked');
+        bar.style.top=(window.innerHeight/z-GAP/z-cta.offsetHeight)+'px';
+        if(!anim){bar.offsetHeight;bar.classList.remove('no-tr')}
+        later(function(){freeze(function(){bar.style.top='';bar.classList.add('bar-pinned')})});
+      }
+      function undock(){
+        var z=Z(), r=bar.getBoundingClientRect();
+        freeze(function(){bar.classList.remove('bar-pinned');bar.style.top=(r.top/z)+'px'});
+        bar.classList.remove('bar-docked');
+        bar.style.top=(hero.getBoundingClientRect().top/z+BASE)+'px';
+        later(function(){freeze(function(){bar.classList.remove('bar-fixed');bar.style.top=''})});
+      }
       function onScroll(){
         if(!visible(root))return;
         var want=window.scrollY>10;
-        if(want!==docked){docked=want; want?dock():undock()}
+        if(want!==docked){docked=want; want?dock(true):undock()}
       }
-      onScroll(); window.addEventListener('scroll',onScroll,{passive:true}); window.addEventListener('resize',onScroll);
+      if(visible(root)&&window.scrollY>10){docked=true;dock(false)}
+      window.addEventListener('scroll',onScroll,{passive:true}); window.addEventListener('resize',onScroll);
       if(end)new IntersectionObserver(function(es){es.forEach(function(e){bar.classList.toggle('bar-hide',e.isIntersecting)})}).observe(end);
     }
     // 산출 근거 아코디언
