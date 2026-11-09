@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2027 스터디 플래닝 캘린더</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --black:#0d0f14; --text-normal:#262628; --yellow:#f4f84b;
+  --gray-box:#f3f4f6; --green:#e4efcf; --blue:#d3f3ff;
+  --line:#dddee1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--black);-webkit-font-smoothing:antialiased;word-break:keep-all}
+img{display:block;max-width:100%}
+.pc{display:block}.m{display:none}
+@media (max-width:767px){.pc{display:none}.m{display:block}}
+
+/* 공통 */
+.hl{background:linear-gradient(to bottom,transparent 6%,var(--yellow) 6%,var(--yellow) 92%,transparent 92%);border-radius:4px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.mk{font-weight:600;color:var(--black);background:linear-gradient(to bottom,transparent 16%,var(--yellow) 16%,var(--yellow) 80%,transparent 80%);border-radius:1px}
+.tab{display:block;width:100%}
+.shadow{box-shadow:6px 5px 11px rgba(0,0,0,.09)}
+
+/* 토글 */
+.tg{position:relative;flex:none;width:44px;height:24px;border-radius:12px;background:#e0e0e6;box-shadow:inset 1px 1px 2px rgba(0,0,0,.08);transition:background-color .45s ease}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .45s ease,background-color .45s ease}
+.tg.on{background:#adadad}
+.tg.on::after{transform:translateX(20px);background:var(--yellow);box-shadow:none}
+@media (prefers-reduced-motion:reduce){.tg,.tg::after{transition:none}}
+
+/* 가이드 슬라이드 */
+.guide{position:relative}
+.guide .sl{display:none}
+.guide .sl.on{display:block}
+
+/* ============ PC ============ */
+.pc-page{width:847px;flex:none}
+.pc-banner{width:847px;height:173px;border-radius:24px;margin-bottom:20px}
+.pc-card{background:#fff;border:1px solid #ddd;border-radius:24px;overflow:hidden}
+.pc-kv{width:847px;height:386px;border-radius:24px}
+
+.pc-s1{display:flex;flex-direction:column;align-items:center;gap:100px;padding:80px 80px 0}
+.pc-blk{width:687px;display:flex;flex-direction:column;align-items:center}
+.pc-h{font-weight:800;font-size:36px;line-height:1.334;letter-spacing:-.972px;text-align:center}
+.pc-sub{font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-.24px;text-align:center}
+
+.pc-check{width:687px}
+.pc-check .body{background:var(--gray-box);border-radius:0 24px 24px 24px;padding:28px 32px;display:flex;flex-direction:column;gap:16px}
+.pc-check .row{display:flex;align-items:center;gap:16px;white-space:nowrap;font-weight:500;font-size:16px;line-height:1.5;letter-spacing:.0912px}
+.pc-check hr{border:0;border-top:1px solid var(--line)}
+
+.overlap{display:grid;width:100%}
+.overlap > *{grid-area:1/1}
+.overlap .a{width:78.31%;aspect-ratio:538/377;object-fit:cover}
+.overlap .b{width:78.31%;aspect-ratio:538/426;object-fit:cover;margin-left:21.69%;margin-top:49.05%}
+
+.pc-feat{display:flex;gap:8px;width:100%}
+.pc-feat .card{flex:1;display:flex;flex-direction:column;gap:12px}
+.pc-feat .card > img{width:340px;height:205px;border-radius:24px;object-fit:cover}
+.feat-t{display:flex;flex-direction:column;gap:8px}
+.feat-t .n{width:26px;height:26px}
+.feat-t h3{font-weight:800;font-size:20px;line-height:1.4;letter-spacing:-.24px}
+.feat-t p{font-weight:500;font-size:15px;line-height:1.625;letter-spacing:.144px}
+
+.mentor-pc{position:relative;width:687px;height:654px;overflow:hidden;border-radius:24px 24px 0 0;background:linear-gradient(to bottom,#d3f3ff 74.366%,rgba(211,243,255,0))}
+.mentor-in{position:absolute;display:flex;flex-direction:column;align-items:center}
+.mentor-pc .mentor-in{left:24px;top:20px;width:639px;gap:32px}
+.handle{width:57px;height:4px;border-radius:999px;background:#a7d2e3}
+.notice{display:flex;justify-content:center;background:#b4e0f1;border-radius:8px;color:#4d6e7b;font-weight:500;text-align:center}
+.mentor-pc .notice{width:360px;padding:8px 0;font-size:14px;line-height:1.429;letter-spacing:.203px}
+.mentor-list{display:flex;flex-direction:column;gap:20px;width:100%}
+.mentor .nm{font-weight:600;color:#384448}
+.bub-wrap{position:relative}
+.bub-tail{position:absolute;left:0;top:29px}
+.bub{display:inline-block;background:#fff;color:var(--text-normal)}
+.mentor-pc .nm{margin-left:14px;font-size:14px;line-height:1.429;letter-spacing:.203px;margin-bottom:4px}
+.mentor-pc .bub{margin-left:14px;border-radius:16px;padding:12px 16px;font-weight:500;font-size:15px;line-height:1.625;letter-spacing:.144px;white-space:nowrap}
+.mentor-pc .bub-tail{width:24px;height:14px}
+.mentor-note{font-size:13px;line-height:1.385;letter-spacing:.2522px;color:#7b939d;text-align:center;width:100%}
+
+.pc-mid{position:relative;width:847px;height:912px}
+.pc-mid img{width:100%;height:100%;object-fit:cover;object-position:bottom;border-radius:24px}
+.pc-mid .grad{position:absolute;left:0;top:0;width:100%;height:490px;opacity:.4;border-radius:24px 24px 0 0;background:linear-gradient(to bottom,#000 45%,rgba(0,0,0,0))}
+.pc-mid .txt{position:absolute;left:150px;top:80px;width:537px;display:flex;flex-direction:column;gap:12px;color:#fff;text-align:center}
+.pc-mid .t1{font-weight:800;font-size:36px;line-height:1.334;letter-spacing:-.972px}
+.pc-mid .t2{font-weight:500;font-size:24px;line-height:1.45;letter-spacing:-.552px}
+
+.pc-s2{display:flex;flex-direction:column;align-items:center;gap:80px;padding:80px}
+.toc{width:100%;display:flex;flex-direction:column;gap:10px}
+.toc .rows{display:flex;flex-direction:column;gap:10px}
+.toc .r{display:flex;align-items:center;gap:12px;font-weight:500}
+.toc .r i{flex:1;border-top:1px solid var(--line)}
+.toc .end{border:0;border-top:1px solid #555}
+.toc .total{display:flex;justify-content:space-between;font-weight:800}
+.pc-toc{padding:0 60px}
+.pc-toc .rows{padding-bottom:12px}
+.pc-toc .r{font-size:20px;line-height:1.4;letter-spacing:-.24px}
+.pc-toc .total{font-size:24px;line-height:1.45;letter-spacing:-.552px}
+
+.board{position:relative;background:#f3f3f3;overflow:hidden}
+.board .hd{position:absolute;left:0;top:0;width:100%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bebfc1}
+.board .ab{position:absolute}
+.board .pg{box-shadow:10px 10px 16px rgba(0,0,0,.09)}
+.board .pg-up{box-shadow:5px -4px 24px rgba(0,0,0,.09)}
+.board .tx{position:absolute;display:flex;flex-direction:column;white-space:nowrap}
+.board .tx.r{align-items:flex-end;text-align:right}
+.board-pc{width:791px;height:4766px;border-radius:32px}
+.board-pc .hd{padding:20px 28px}
+.board-pc .tx{gap:4px}
+.board-pc .tx b{font-weight:600;font-size:20px;line-height:1.4;letter-spacing:-.24px}
+.board-pc .tx span{font-weight:400;font-size:16px;line-height:1.5;letter-spacing:.0912px}
+.board-pc .plus{width:24px;height:24px}
+
+.pc-fin{font-weight:500;font-size:36px;line-height:1.334;letter-spacing:-.972px;text-align:center;white-space:nowrap}
+.pc-fin strong{font-weight:800}
+
+.gal{position:relative}
+.gal img{position:absolute;object-fit:cover}
+.pc-gal{width:847px;height:1541px}
+.pc-gal .g1{left:0;top:0;width:847px;height:657px;border-radius:32px;object-position:bottom}
+.pc-gal .g2{left:0;top:677px;width:655px;height:444px;border-radius:32px}
+.pc-gal .g3{right:0;top:1060px;width:518px;height:481px;border-radius:32px}
+
+.pc-s3{display:flex;flex-direction:column;align-items:center;padding:100px 80px 80px}
+.guide-pc{width:687px;height:297px}
+.guide-pc .tab{height:33px}
+.guide-pc .bd{height:264px;border-radius:0 24px 24px 24px;padding:60px 32px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.guide-pc .col{flex-direction:column;gap:16px}
+.guide-pc .rowx{gap:32px}
+.guide-pc p{font-weight:500;font-size:20px;line-height:1.4;letter-spacing:-.24px;white-space:nowrap}
+
+
+/* ===== 사이트 공통 영역 (PC) ===== */
+.gnb a,.m-gnb a{text-decoration:none}
+.gnb{height:72px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 60px;font-family:"NanumSquare Neo",Pretendard,sans-serif}
+.gnb .logo{display:flex;align-items:center;gap:4px}
+.gnb .logo img{width:auto;height:24px}
+.gnb .logo .dd{width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.gnb nav{display:flex;gap:48px;height:100%;align-items:center}
+.gnb nav a{font-weight:700;font-size:16px;line-height:1.5;color:#4d4847;text-decoration:none;padding:8px 0;white-space:nowrap}
+.gnb nav a.on{padding:5px;background:linear-gradient(to right,#c40f06 .473%,#e6433b 99.527%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gnb .app{border:1px solid #ccc;border-radius:6px;padding:4px 18px;font-weight:800;font-size:13px;line-height:1.5;color:#3e3a39;background:#fff;white-space:nowrap}
+.pc-wrap{background:#f1f2f4;border-top:1px solid #e6e6e6;padding:0 20px 160px}
+.pc-layout{width:1280px}
+.top-title{display:flex;align-items:center;padding:40px 32px}
+.top-title h1{flex:1;font-weight:600;font-size:36px;line-height:1.334;letter-spacing:-.972px;color:#0d0f14;white-space:nowrap}
+.crumb{display:flex;align-items:center;gap:8px;height:35px;font-weight:600;font-size:16px;line-height:1.5;letter-spacing:.0912px;color:#bebfc1;white-space:nowrap}
+.crumb b{font-weight:600;color:#0d0f14}
+.crumb svg{width:24px;height:24px}
+.pc-inner{display:flex;gap:20px;align-items:flex-start;padding:0 32px}
+.side{width:349px;flex:none;display:flex;flex-direction:column;gap:12px}
+.info{background:#fff;border-radius:24px;padding:32px 20px;display:flex;flex-direction:column;gap:28px}
+.info dl{display:flex;flex-direction:column;gap:20px}
+.info .it{display:flex;align-items:flex-start}
+.info dt{width:81px;flex:none;font-weight:600;font-size:18px;line-height:1.445;letter-spacing:-.0036px;color:#97989a}
+.info dd{font-weight:600;font-size:16px;line-height:1.5;letter-spacing:.0912px;color:#0d0f14}
+.btn-red{display:flex;align-items:center;justify-content:center;width:100%;padding:12px 16px;border-radius:42px;background:#ca0b14;color:#fff;font-weight:600;font-size:16px;line-height:1.5;letter-spacing:.0912px;text-decoration:none}
+.acc{background:#fff;border-radius:24px;padding:20px 30px;display:flex;flex-direction:column;gap:10px}
+.acc-hd{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:10px 0;background:none;border:0;cursor:pointer;font:inherit;color:inherit;text-align:left}
+.acc-ic{width:40px;height:40px;flex:none;border-radius:50%;background:#f1f2f4;display:flex;align-items:center;justify-content:center}
+.acc-ic svg{width:20px;height:20px}
+.acc-hd .tt{flex:1;font-weight:600;font-size:20px;line-height:1.4;letter-spacing:-.24px;color:#0d0f14}
+.acc-hd .ar{width:16px;height:16px;transition:transform .25s}
+.acc:not(.open) .acc-hd .ar{transform:rotate(180deg)}
+.acc:not(.open) .acc-bd{display:none}
+.acc-bd{display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:1.429;letter-spacing:.203px;color:#262628}
+.acc-bd li{display:flex;gap:4px;list-style:none}
+.acc-bd li::before{content:"※";flex:none}
+.acc-hd:focus-visible,.btn-red:focus-visible{outline:2px solid #0d0f14;outline-offset:2px}
+
+/* ===== 사이트 공통 영역 (MO) ===== */
+.m-top{background:#f1f2f4;padding-bottom:20px}
+.m-gnb{height:68px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.m-gnb .logo{display:flex;align-items:center;gap:4px}
+.m-gnb .logo img{width:auto;height:20px}
+.m-gnb .dd{display:flex}
+.m-gnb .r{display:flex;align-items:center;gap:16px}
+.m-gnb .meal{border:1px solid #ccc;border-radius:6px;padding:4px 30px;font-weight:600;font-size:13px;line-height:1.5;color:#3e3a39;background:#fff}
+.m-gnb .ham{width:24px;height:24px;background:none;border:0}
+.m-title{display:flex;align-items:center;gap:6px;padding:28px 20px 24px}
+.m-title h1{font-weight:700;font-size:22px;line-height:1.45;letter-spacing:-.4268px;color:#0d0f14}
+.m-title a{display:flex}
+.m-side{display:flex;flex-direction:column;gap:12px;padding:0 20px}
+.m-side .info{border-radius:16px;padding:24px 20px;gap:24px}
+.m-side .info dl{gap:16px}
+.m-side .info dt{width:84px;font-size:14px;line-height:1.429;font-weight:500}
+.m-side .info dd{font-size:14px;line-height:1.429;letter-spacing:.203px}
+.m-side .btn-red{height:48px;padding:0 16px}
+.m-side .acc{border-radius:16px;padding:14px 20px;gap:12px}
+.m-side .acc-hd{height:36px;padding:0;gap:12px}
+.m-side .acc-ic{width:36px;height:36px}
+.m-side .acc-hd .tt{font-size:16px;line-height:1.5;letter-spacing:.0912px}
+.m-side .acc-hd .ar{width:20px;height:20px}
+.m-banner{width:100%;border-radius:16px}
+.m-side .acc-bd{font-size:13px;line-height:1.385;letter-spacing:.2522px;padding-bottom:6px}
+
+/* ============ MOBILE ============ */
+.m-page{max-width:500px;margin:0 auto;overflow:hidden}
+.m-kv{width:100%}
+.m-sec{padding:60px 20px;display:flex;flex-direction:column;align-items:center}
+.m-s1{padding-bottom:0;gap:80px}
+.m-blk{width:100%;display:flex;flex-direction:column;align-items:center;gap:24px}
+.m-h{font-weight:800;font-size:22px;line-height:1.45;letter-spacing:-.4268px;text-align:center}
+.m-sub{font-weight:500;font-size:16px;line-height:1.5;letter-spacing:.0912px;text-align:center}
+.hl-m{background:linear-gradient(to bottom,transparent 6%,var(--yellow) 6%,var(--yellow) 91%,transparent 91%);border-radius:2px}
+
+.m-check{width:100%}
+.m-check .tab{height:16px}
+.m-check .body{background:var(--gray-box);border-radius:0 16px 16px 16px;padding:24px 20px;display:flex;flex-direction:column;gap:12px}
+.m-check .row{display:flex;align-items:center;gap:16px;font-weight:500;font-size:14px;line-height:1.429;letter-spacing:.203px}
+.m-check .row p{flex:1}
+.m-check hr{border:0;border-top:1px solid var(--line)}
+.m-check .tg{width:36px;height:20px;border-radius:10px}
+.m-check .tg::after{top:2.5px;left:2.5px;width:15px;height:15px}
+.m-check .tg.on::after{transform:translateX(16px)}
+
+.m-map{width:100%;border-radius:16px}
+.m-imgs{width:100%;display:flex;flex-direction:column;gap:10px}
+.m-imgs .overlap .a,.m-imgs .overlap .b{border-radius:16px}
+.pc .overlap .a,.pc .overlap .b{border-radius:24px}
+
+.m-card{width:100%;display:flex;flex-direction:column;gap:12px}
+.m-card > img{width:100%;aspect-ratio:340/205;border-radius:16px;object-fit:cover}
+.m-card .feat-t .n{width:24px;height:24px}
+
+.fit{transform-origin:0 0}
+.fit-box{width:100%;overflow:hidden}
+
+.mentor-m{position:relative;width:350px;height:812px;overflow:hidden;border-radius:16px 16px 0 0;background:linear-gradient(to bottom,#d3f3ff 67.807%,rgba(211,243,255,0))}
+.mentor-m .mentor-in{left:20px;top:20px;width:310px;gap:32px}
+.mentor-m .notice{width:240px;padding:6px 0;font-size:13px;line-height:1.385;letter-spacing:.2522px}
+.mentor-m .nm{margin-left:14px;font-size:13px;line-height:1.385;letter-spacing:.2522px;margin-bottom:4px}
+.mentor-m .bub{margin-left:10px;width:300px;border-radius:12px;padding:12px 16px;font-weight:400;font-size:14px;line-height:1.429;letter-spacing:.203px}
+.mentor-m .bub-tail{width:15px;height:9px}
+
+.m-mid{position:relative;width:100%;aspect-ratio:390/420}
+.m-mid img{width:100%;height:100%;object-fit:cover;object-position:bottom;border-radius:16px}
+.m-mid .grad{position:absolute;left:0;top:0;width:100%;height:64.5%;opacity:.4;border-radius:16px 16px 0 0;background:linear-gradient(to bottom,#000 45%,rgba(0,0,0,0))}
+.m-mid .txt{position:absolute;left:0;right:0;top:41px;display:flex;flex-direction:column;gap:12px;color:#fff;text-align:center}
+.m-mid .t1{font-weight:800;font-size:22px;line-height:1.45;letter-spacing:-.4268px}
+.m-mid .t2{font-weight:500;font-size:18px;line-height:1.445;letter-spacing:-.0036px}
+
+.m-s2{gap:60px}
+.m-toc .rows{padding-bottom:4px}
+.m-toc .r{font-size:16px;line-height:1.5;letter-spacing:.0912px}
+.m-toc .total{font-size:20px;line-height:1.4;letter-spacing:-.24px}
+
+.board-m{width:350px;height:2687px;border-radius:16px}
+.board-m .hd{padding:12px 16px}
+.board-m .pg{box-shadow:4.946px 4.946px 7.913px rgba(0,0,0,.09)}
+.board-m .pg-up{box-shadow:2.473px -1.978px 11.869px rgba(0,0,0,.09)}
+.board-m .tx{gap:2px}
+.board-m .tx b{font-weight:600;font-size:15px;line-height:1.625;letter-spacing:.144px}
+.board-m .tx span{font-weight:400;font-size:13px;line-height:1.385;letter-spacing:.2522px}
+.board-m .plus{width:12px;height:12px}
+
+.m-gal{width:100%;aspect-ratio:390/709.551}
+.m-gal .g1{left:0;top:0;width:100%;height:42.63%;border-radius:16px;object-position:bottom}
+.m-gal .g2{left:0;top:43.93%;width:77.25%;height:28.81%;border-radius:16px}
+.m-gal .g3{right:0;top:68.79%;width:61.16%;height:31.21%;border-radius:16px}
+
+.guide-m{width:350px;height:150px}
+.guide-m .tab{height:16px}
+.guide-m .bd{height:134px;border-radius:0 12px 12px 12px;padding:0 16px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.guide-m .col{flex-direction:column;gap:8.151px}
+.guide-m .rowx{gap:16.303px}
+.guide-m p{font-weight:500;font-size:15px;line-height:1.625;letter-spacing:.144px;white-space:nowrap}
+.m-shadow{box-shadow:3.057px 2.547px 5.604px rgba(0,0,0,.09)}
+</style>
+</head>
+<body>
+
+<!-- 폴더 탭 도형 (PC 687x33 / MO 350x16) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="tab-pc" d="M0 33V24A24 24 0 0 1 24 0H232C252 0 259 7 268 17C277 27 287 33 304 33Z"/>
+    <path id="tab-m" d="M0 16V12A12 12 0 0 1 12 0H116C126 0 130 4 134 8.5C138.5 13 143 16 152 16Z"/>
+    <path id="tail-pc" d="M24 1C17 6 9 11 0 14C9 14 18 12 24 9Z"/>
+    <path id="tail-m" d="M15 0.5C10.5 4 5.5 7 0 9C5.5 9 11 7.5 15 5.5Z"/>
+  </defs>
+</svg>
+
+<!-- ================= PC ================= -->
+<div class="pc">
+ <header class="gnb">
+  <a class="logo" href="#"><img src="images/logo_sparta.png" alt="잇올 스파르타"></a>
+  <nav>
+   <a href="#">몰입공부 시스템</a><a class="on" href="#">직영 센터/캠프</a><a href="#">모집안내</a><a href="#">입시결과</a><a href="#">장학</a><a href="#">고객센터</a><a href="#">콘텐츠</a><a href="#">이벤트</a>
+  </nav>
+  <a class="app" href="#">APP 다운로드</a>
+ </header>
+ <div class="pc-wrap">
+  <div class="fit-box"><div class="pc-layout fit" data-w="1280" data-max="1">
+   <div class="top-title">
+    <h1>2027 스터디 플래닝 캘린더</h1>
+    <div class="crumb">홈<svg viewBox="0 0 24 24" fill="none"><path d="M9.5 6l6 6-6 6" stroke="#bebfc1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>이벤트/혜택<svg viewBox="0 0 24 24" fill="none"><path d="M9.5 6l6 6-6 6" stroke="#bebfc1" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><b>2027 스터디 플래닝 캘린더</b></div>
+   </div>
+   <div class="pc-inner">
+  <div class="pc-page">
+
+   <img class="pc-banner" src="images/banner_pc.jpg" alt="2027 스터디 플래닝 캘린더 잇올러 선착순 증정 이벤트 - 2026년 11월 19일(목) 이후 잇올 스파르타, 잇올 몰입관, 잇올 기숙학원 신규 등원 고객 대상으로 진행됩니다. 각 센터/캠프별 한정 수량으로 선착순 증정됩니다. 자세한 안내 및 문의는 센터/캠프 담당자에게 문의해 주세요.">
+
+   <div class="pc-card">
+    <img class="pc-kv" src="images/kv_pc.jpg" alt="플래너의 치밀함과 캘린더의 직관성을 하나로 - 수험생의 책상 위, 가장 완벽한 1년의 전략 2027 스터디 플래닝 캘린더">
+
+    <section class="pc-s1">
+     <!-- 체크리스트 -->
+     <div class="pc-blk" style="gap:32px">
+      <h2 class="pc-h">2가지 이상 체크된다면,<br>2027년 <span class="hl">수험 생활의 정답</span>은 바로<br>이 플래닝 캘린더 입니다.</h2>
+      <div class="pc-check js-check">
+       <svg class="tab" viewBox="0 0 687 33" style="height:33px"><use href="#tab-pc" fill="#f3f4f6"/></svg>
+       <div class="body">
+        <div class="row"><span class="tg"></span>플래너와 달력을 따로 쓰느라 좁은 독서실 책상이 늘 복잡하다.</div><hr>
+        <div class="row"><span class="tg"></span>모의고사 일정, 수능 D-Day를 매번 찾아보고 계산하기 번거롭다.</div><hr>
+        <div class="row"><span class="tg"></span>다이어리를 덮어두는 순간, 오늘 해야 할 공부도 같이 잊어버린다.</div><hr>
+        <div class="row"><span class="tg"></span>다이어리를 덮어두는 순간, 오늘 해야 할 공부도 같이 잊어버린다.</div><hr>
+        <div class="row"><span class="tg"></span>인강 진도율, 교재 계획, 모의고사 성적 변화를 한곳에 모아 관리하고 싶다.</div><hr>
+        <div class="row"><span class="tg"></span>작심삼일로 끝나는 복잡한 플래너 대신, 1년 내내 직관적으로 쓸 스케줄러를 찾고 있다.</div>
+       </div>
+      </div>
+     </div>
+
+     <!-- 명문대 선배 루틴 -->
+     <div class="pc-blk" style="gap:40px">
+      <div class="pc-blk" style="gap:12px">
+       <h2 class="pc-h"><span class="hl">명문대 선배들의 실제 학습 루틴</span>을<br>그대로 담았습니다.</h2>
+       <p class="pc-sub">수험 생활을 가장 잘 아는 명문대 재학생 멘토들의 의견을 반영해,<br>성적 상승에 꼭 필요한 핵심 항목만 엄선해 구성했습니다.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:20px;width:100%">
+       <img src="images/map_pc.png" width="687" height="556" style="border-radius:24px" alt="뒷장을 안봐도 OK! 편의성 좋은 미니 달력 / 규칙적인 학습 습관을 만드는 루틴 트래커 / 동기부여와 심리적 위로를 주는 이번 달 명언 / 취약점 보안을 위한 과목별 리뷰 / 학업 성취도와 성장 과정을 확인하는 이번 달 등급">
+       <div class="overlap">
+        <img class="a" src="images/photo_a.jpg" alt="">
+        <img class="b" src="images/photo_b.jpg" alt="">
+       </div>
+      </div>
+     </div>
+
+     <!-- 이런 점이 특히 좋아요 -->
+     <div class="pc-blk" style="gap:40px">
+      <div class="pc-blk" style="gap:32px">
+       <img src="images/sec1.png" width="370" height="46" alt="">
+       <h2 class="pc-h">이런 점이 특히 좋아요.</h2>
+      </div>
+      <div class="pc-feat">
+       <div class="card"><img src="images/feat1.jpg" alt="">
+        <div class="feat-t"><img class="n" src="images/num1.png" alt="01"><h3>명문대 멘토들의 노하우를 집약한<br>수능 맞춤 올인원 콘텐츠</h3><p>학사일정, 수능 D-Day 수록과 인강 진도,<br>교재 계획, 성적 관리까지 수험생에게 꼭 필요한<br>학습 콘텐츠를 모두 담았습니다.</p></div></div>
+       <div class="card"><img src="images/feat2.jpg" alt="">
+        <div class="feat-t"><img class="n" src="images/num2.png" alt="02"><h3>책상에선 스탠드로,<br>이동할 땐 플래너로 (2-Way)</h3><p>받침대를 세우면 탁상형 캘린더가 되고,<br>접으면 가방에 쏙 들어가는 휴대용 플래너가 됩니다.<br>언제 어디서나 끊김 없이 학습 흐름을 이어가세요.</p></div></div>
+      </div>
+      <div class="pc-feat">
+       <div class="card"><img src="images/feat3.jpg" alt="">
+        <div class="feat-t"><img class="n" src="images/num3.png" alt="03"><h3>비침 걱정 없는 120g 모조지와<br>탄탄한 트윈링</h3><p>화이트 모조지로 뒷면 비침과 눈부심이 적습니다.<br>360도 부드럽게 넘어가는 트윈링 제본으로<br>필기감과 편리함을 모두 잡았습니다.</p></div></div>
+       <div class="card"><img src="images/feat4.jpg" alt="">
+        <div class="feat-t"><img class="n" src="images/num4.png" alt="04"><h3>수험생의 합격을 응원하는<br>가장 센스 있는 선물</h3><p>새로운 학기와 시험을 준비하는 자녀와 친구에게,<br>매일의 공부를 든든하게 지켜줄<br>실전형 플래닝 캘린더를 선물하세요.</p></div></div>
+      </div>
+     </div>
+
+     <!-- 멘토 -->
+     <div class="pc-blk" style="gap:40px">
+      <div class="pc-blk" style="gap:12px;position:relative;width:auto">
+       <img src="images/emblem.png" alt="" style="position:absolute;right:-14px;top:-18px;width:105px;height:105px">
+       <h2 class="pc-h">수험생에게 <span class="hl">진짜 필요한 칸</span>은<br>따로 있으니까요.</h2>
+       <p class="pc-sub">치열한 수험 생활을 먼저 겪어본 명문대 멘토들의 리얼한 피드백을 담아<br>오직 성적 상승과 실전에 직결되는 밀도 높은 구성을 완성했습니다.</p>
+      </div>
+      <div class="mentor-pc">
+       <div class="mentor-in">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:24px;width:360px">
+         <span class="handle"></span>
+         <p class="notice">명문대생 멘토들이 입장하셨습니다.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;width:100%">
+         <div class="mentor-list">
+          <div class="mentor"><p class="nm">멘토A</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 24 14"><use href="#tail-pc" fill="#fff"/></svg><p class="bub">6평 이후 쏟아지는 N제와 기출의 홍수 속에서 흔들리지 않으려면 <span class="mk">‘교재 계획표’</span>가 필수예요.<br>문제집마다 목표 완료일과 진도를 체계적으로 관리할 수 있어 가장 유용한 페이지입니다.</p></div></div>
+          <div class="mentor"><p class="nm">멘토B</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 24 14"><use href="#tail-pc" fill="#fff"/></svg><p class="bub">불필요한 요소는 덜어내고 일정을 기록하는 월력 공간을 넓히면 좋을거 같아요. 뒷면에는 매달 실천할<br><span class="mk">‘생활 루틴 목표’</span>와 <span class="mk">‘목표 달성도’</span>를 직관적으로 체크할 수 있다면 학습 방향을 잃지 않게 도와줄겁니다.</p></div></div>
+          <div class="mentor"><p class="nm">멘토C</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 24 14"><use href="#tail-pc" fill="#fff"/></svg><p class="bub">멘토링을 해보면 학생마다 인강 수강 시기와 속도가 천차만별이에요. 강사가 짜준 일괄 커리큘럼에<br>끌려다니지 않고, 나만의 속도로 진도와 복습을 완주하려면 전용 <span class="mk">‘인강 계획표’</span>가 꼭 필요합니다.</p></div></div>
+          <div class="mentor"><p class="nm">멘토D</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 24 14"><use href="#tail-pc" fill="#fff"/></svg><p class="bub">잃어버리기 쉬운 모의고사 성적표를 <span class="mk">‘성적 관리표’</span>에 모아 성장을 한눈에 확인하고,<br><span class="mk">‘월간 피드백(리뷰)’</span> 칸에 잘한 점과 아쉬운 점을 기록하며 다음 달을 더 완벽하게 준비할 수 있습니다.</p></div></div>
+         </div>
+         <p class="mentor-note">* 위 내용은 2026년 7월 진행된 잇올 멘토단 의견 조사의 실제 응답 중 일부를 발췌 및 편집하여 수록하였습니다.</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <!-- 중간 배너 -->
+    <div class="pc-mid">
+     <img src="images/mid.jpg" alt="">
+     <div class="grad"></div>
+     <div class="txt">
+      <p class="t1">계획만 세우다 지치는 플래너는 그만.</p>
+      <p class="t2">모의고사, 그리고 수능까지<br>흔들리지 않는 페이스를 만듭니다.</p>
+     </div>
+    </div>
+
+    <!-- 구성 -->
+    <section class="pc-s2">
+     <div class="pc-blk" style="gap:40px">
+      <div class="pc-blk" style="gap:32px">
+       <img src="images/sec2.png" width="368" height="46" alt="">
+       <div class="pc-blk" style="gap:12px">
+        <p class="pc-sub">총 13개월의 학습 여정을 담아</p>
+        <h2 class="pc-h">계획부터 실행, 기록과 점검까지<br>체계적으로 구성했어요.</h2>
+       </div>
+      </div>
+      <div class="toc pc-toc">
+       <div class="rows">
+        <div class="r">표지<i></i>2P</div>
+        <div class="r">플래너 사용 설명서<i></i>2P</div>
+        <div class="r">목표 작성<i></i>1P</div>
+        <div class="r">연간 달력<i></i>1P</div>
+        <div class="r">연간 계획표<i></i>1P</div>
+        <div class="r">월간 달력 &amp; 프리뷰<i></i>26P</div>
+        <div class="r">주간계획표<i></i>6P</div>
+        <div class="r">시간표<i></i>2P</div>
+        <div class="r">성적 관리표<i></i>4P</div>
+        <div class="r">인강 계획표<i></i>6P</div>
+        <div class="r">교재 계획표<i></i>6P</div>
+        <div class="r">메모장<i></i>9P</div>
+       </div>
+       <hr class="end">
+       <div class="total"><span>TOTAL</span><span>66P</span></div>
+      </div>
+     </div>
+
+     <div class="board board-pc">
+      <div class="hd"><img src="images/detail_logo.png" width="111" height="14" alt="Detail"><img src="images/detail_brand.png" width="123" height="16" alt=""></div>
+
+      <img class="ab" src="images/g_year.png" style="left:60.5px;top:187px;width:676.8px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:119px;top:181px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:217px;top:980px" alt="">
+      <div class="tx" style="left:147px;top:117px"><b>흔들리는 수험 생활의 나침반, 목표 설정</b><span>슬럼프 때마다 초심을 다잡도록 올해의 최종 목표와 다짐을 기록합니다.</span></div>
+      <div class="tx" style="left:241px;top:1012px"><b>1년의 수험 레이스를 한눈에 꿰뚫는 연간 로드맵</b><span>12개월의 전체 학습 흐름과 시기별 핵심 과제를 설계합니다.</span></div>
+
+      <div class="tx" style="left:92px;top:1148px"><b>한 달의 공부 기준을 세팅하는 월간 프리뷰 &amp; 루틴 트래커</b><span>과목별 목표 성취도와 매일의 공부 루틴을 체크하며 공부 습관을 잡습니다.</span></div>
+      <img class="ab" src="images/p_month1.png" style="left:73.95px;top:1217.95px;width:663.4px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:68px;top:1212px" alt="">
+
+      <div class="tx" style="left:92px;top:1738px"><b>수능 학사일정과 D-Day가 수록된 실전형 월간 캘린더</b><span>모의고사·학사일정·수능 D-Day는 기본, 매일의 달성도와 순공 시간을 기록합니다.</span></div>
+      <img class="ab" src="images/p_month2.png" style="left:73.95px;top:1807.95px;width:663.4px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:68px;top:1802px" alt="">
+
+      <div class="tx r" style="left:254px;top:2328px"><b>밀리지 않는 공부를 만드는 주간 계획표</b><span>한 달 목표를 주 단위로 잘게 쪼개고,<br>체크리스트로 완료 여부를 꼼꼼히 관리합니다.</span></div>
+      <img class="ab" src="images/g_week.png" style="left:73.95px;top:2421.95px;width:663.1px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:550px;top:2416px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:217px;top:2876px" alt="">
+      <div class="tx" style="left:241px;top:2908px"><b>숨은 자투리 시간까지 찾아내는 순공 시간표</b><span>학교·학원 등 요일별 고정 일정을 파악해<br>나만의 진짜 순공 시간을 확보합니다.</span></div>
+
+      <div class="tx" style="left:92px;top:3087px"><b>성적의 흐름을 읽고 약점을 보완하는 성적 관리표</b><span>모의고사와 내신 성적 추이를 한눈에 비교하고<br>다음 시험의 전략을 세웁니다.</span></div>
+      <img class="ab" src="images/g_score.png" style="left:73.95px;top:3180.95px;width:663.1px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:68px;top:3175px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:217px;top:3635px" alt="">
+      <div class="tx" style="left:241px;top:3667px"><b>밀리지 않는 완강 메이트, 인강 계획표</b><span>듣기만 하고 끝나는 인강이 되지 않도록,<br>진도 체크부터 복습까지 빈틈없이 관리합니다.</span></div>
+
+      <div class="tx" style="left:92px;top:3827px"><b>성적 상승의 핵심, 교재 계획표</b><span>문제집과 기출 교재의 일정을 기록해 취약 단원 없이 완벽히 마스터합니다.</span></div>
+      <img class="ab" src="images/g_book.png" style="left:73.95px;top:3896.95px;width:666.1px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:68px;top:3891px" alt="">
+      <img class="ab plus" src="images/plus.png" style="left:114px;top:4618px" alt="">
+      <div class="tx" style="left:138px;top:4650px"><b>활용도 좋은 메모장</b><span>줄노트와 무지노트를 활용해 자유롭게 기록합니다.</span></div>
+     </div>
+
+     <p class="pc-fin">빈틈없는 하루가 모여 <strong class="hl">가장 확실한 결과</strong>를 만듭니다.</p>
+    </section>
+
+    <!-- 갤러리 -->
+    <div class="gal pc-gal">
+     <img class="g1" src="images/gal1.jpg" alt="">
+     <img class="g2" src="images/gal2.jpg" alt="">
+     <img class="g3" src="images/gal3.jpg" alt="">
+    </div>
+
+    <!-- 사용 가이드 -->
+    <section class="pc-s3">
+     <div class="pc-blk" style="gap:40px">
+      <div class="pc-blk" style="gap:32px">
+       <img src="images/sec3.png" width="369" height="46" alt="">
+       <div class="pc-blk" style="gap:12px">
+        <p class="pc-sub">캘린더의 주요 기능과 활용 방법을 쉽게 정리했어요.</p>
+        <h2 class="pc-h">사용 가이드를 참고해<br>나만의 학습 계획을 시작해 보세요.</h2>
+       </div>
+      </div>
+      <div class="guide guide-pc js-guide">
+       <div class="sl on">
+        <svg class="tab" viewBox="0 0 687 33"><use href="#tab-pc" fill="#e4efcf"/></svg>
+        <div class="bd col" style="background:#e4efcf"><p>루틴 트래커로 일일 루틴 이행 현황을 관리합니다.</p><img class="shadow" src="images/guide1.png" width="623" height="102" alt=""></div>
+       </div>
+       <div class="sl">
+        <svg class="tab" viewBox="0 0 687 33"><use href="#tab-pc" fill="#d3f3ff"/></svg>
+        <div class="bd rowx" style="background:#d3f3ff"><p>이달의 할일과<br>일정을 계획하고<br>기록합니다.</p><img class="shadow" src="images/guide2.png" width="376" height="156" alt=""></div>
+       </div>
+       <div class="sl">
+        <svg class="tab" viewBox="0 0 687 33"><use href="#tab-pc" fill="#e4efcf"/></svg>
+        <div class="bd rowx" style="background:#e4efcf"><p>월간 목표와<br>달성 항목을<br>기록합니다.</p><img class="shadow" src="images/guide3.png" width="372" height="156" alt=""></div>
+       </div>
+       <div class="sl">
+        <svg class="tab" viewBox="0 0 687 33"><use href="#tab-pc" fill="#d3f3ff"/></svg>
+        <div class="bd col" style="background:#d3f3ff"><p>루틴 트래커로 일일 루틴 이행 현황을 관리합니다.</p><img class="shadow" src="images/guide4.png" width="451" height="156" alt=""></div>
+       </div>
+      </div>
+     </div>
+    </section>
+   </div>
+  </div>
+    <aside class="side">
+     <div class="info">
+       <dl>
+        <div class="it"><dt>신청기간</dt><dd>상시 오픈</dd></div>
+        <div class="it"><dt>신청방법</dt><dd>사전 신청 바로가기 버튼 클릭</dd></div>
+        <div class="it"><dt>신청대상</dt><dd>윈터스쿨 라이브 설명회<br>참여 희망자 누구나</dd></div>
+       </dl>
+       <a class="btn-red" href="#">잇올 팔레트 바로가기</a>
+     </div>
+     <div class="acc open">
+      <button class="acc-hd" type="button" aria-expanded="true"><span class="acc-ic"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="#4d4847" stroke-width="1.5"/><path d="M10 9v4.5" stroke="#4d4847" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.6" r=".9" fill="#4d4847"/></svg></span><span class="tt">유의사항</span><svg class="ar" viewBox="0 0 16 16" fill="none"><path d="M3.5 10l4.5-4.5 4.5 4.5" stroke="#0d0f14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+       <ul class="acc-bd">
+        <li>혜택 신청 및 추첨은 라이브 당일 시청자에 한하며, 사전 신청만으로는 혜택 대상에 포함되지 않습니다.</li>
+        <li>참여자 혜택은 타인에게 양도하거나 현금으로 전환할 수 없습니다.</li>
+        <li>라이브 일정 및 혜택 구성은 내부 사정에 따라 변경될 수 있으며, 변경 시 사전 공지합니다.</li>
+        <li>추첨 혜택 당첨자는 별도 개별 안내드리며, 당첨 후 기한 내 미응답 시 당첨이 취소될 수 있습니다.</li>
+       </ul>
+     </div>
+    </aside>
+   </div>
+  </div></div>
+ </div>
+</div>
+
+<!-- ================= MOBILE ================= -->
+<div class="m">
+ <div class="m-page">
+  <div class="m-top">
+   <header class="m-gnb">
+    <a class="logo" href="#"><img src="images/logo_sparta.png" alt="잇올 스파르타"></a>
+    <div class="r"><a class="meal" href="#">식단표</a><button class="ham" type="button" aria-label="메뉴"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="#0d0f14" stroke-width="1.6" stroke-linecap="round"/></svg></button></div>
+   </header>
+   <div class="m-title"><a href="#" aria-label="뒤로가기"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#ca0b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1>2027 스터디 플래닝 캘린더</h1></div>
+   <div class="m-side">
+    <div class="info">
+       <dl>
+        <div class="it"><dt>신청기간</dt><dd>상시 오픈</dd></div>
+        <div class="it"><dt>신청방법</dt><dd>사전 신청 바로가기 버튼 클릭</dd></div>
+        <div class="it"><dt>신청대상</dt><dd>윈터스쿨 라이브 설명회<br>참여 희망자 누구나</dd></div>
+       </dl>
+       <a class="btn-red" href="#">잇올 팔레트 바로가기</a>
+    </div>
+    <div class="acc">
+     <button class="acc-hd" type="button" aria-expanded="false"><span class="acc-ic"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.5" stroke="#4d4847" stroke-width="1.5"/><path d="M10 9v4.5" stroke="#4d4847" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="6.6" r=".9" fill="#4d4847"/></svg></span><span class="tt">유의사항</span><svg class="ar" viewBox="0 0 16 16" fill="none"><path d="M3.5 10l4.5-4.5 4.5 4.5" stroke="#0d0f14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+       <ul class="acc-bd">
+        <li>혜택 신청 및 추첨은 라이브 당일 시청자에 한하며, 사전 신청만으로는 혜택 대상에 포함되지 않습니다.</li>
+        <li>참여자 혜택은 타인에게 양도하거나 현금으로 전환할 수 없습니다.</li>
+        <li>라이브 일정 및 혜택 구성은 내부 사정에 따라 변경될 수 있으며, 변경 시 사전 공지합니다.</li>
+        <li>추첨 혜택 당첨자는 별도 개별 안내드리며, 당첨 후 기한 내 미응답 시 당첨이 취소될 수 있습니다.</li>
+       </ul>
+    </div>
+    <img class="m-banner" src="images/banner_m.jpg" alt="2027 스터디 플래닝 캘린더 잇올러 선착순 증정 이벤트 - 2026년 11월 19일(목) 이후 잇올 스파르타, 잇올 몰입관, 잇올 기숙학원 신규 등원 고객 대상으로 진행됩니다. 각 센터/캠프별 한정 수량으로 선착순 증정됩니다. 자세한 안내 및 문의는 센터/캠프 담당자에게 문의해 주세요.">
+   </div>
+  </div>
+  <img class="m-kv" src="images/kv_m.png" alt="플래너의 치밀함과 캘린더의 직관성을 하나로 - 수험생의 책상 위, 가장 완벽한 1년의 전략 2027 스터디 플래닝 캘린더">
+
+  <section class="m-sec m-s1">
+   <div class="m-blk" style="gap:16px">
+    <h2 class="m-h">2가지 이상 체크된다면,<br>2027년 <span class="hl-m">수험 생활의 정답</span>은 바로<br>이 플래닝 캘린더 입니다.</h2>
+    <div class="m-check js-check">
+     <svg class="tab" viewBox="0 0 350 16" preserveAspectRatio="xMinYMid meet"><use href="#tab-m" fill="#f3f4f6"/></svg>
+     <div class="body">
+      <div class="row"><span class="tg"></span><p>플래너와 달력을 따로 쓰느라<br>좁은 독서실 책상이 늘 복잡하다.</p></div><hr>
+      <div class="row"><span class="tg"></span><p>모의고사 일정, 수능 D-Day를<br>매번 찾아보고 계산하기 번거롭다.</p></div><hr>
+      <div class="row"><span class="tg"></span><p>다이어리를 덮어두는 순간,<br>오늘 해야 할 공부도 같이 잊어버린다.</p></div><hr>
+      <div class="row"><span class="tg"></span><p>다이어리를 덮어두는 순간,<br>오늘 해야 할 공부도 같이 잊어버린다.</p></div><hr>
+      <div class="row"><span class="tg"></span><p>인강 진도율, 교재 계획, 모의고사 성적 변화를 한곳에 모아 관리하고 싶다.</p></div><hr>
+      <div class="row"><span class="tg"></span><p>작심삼일로 끝나는 복잡한 플래너 대신,<br>1년 내내 직관적으로 쓸 스케줄러를 찾고 있다.</p></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="m-blk">
+    <div class="m-blk" style="gap:8px">
+     <h2 class="m-h"><span class="hl-m">명문대 선배들의 실제 학습 루틴</span>을<br>그대로 담았습니다.</h2>
+     <p class="m-sub">수험 생활을 가장 잘 아는 명문대 재학생 멘토들의<br>의견을 반영해, 성적 상승에 꼭 필요한<br>핵심 항목만 엄선해 구성했습니다.</p>
+    </div>
+    <div class="m-imgs">
+     <img class="m-map" src="images/map_m.png" alt="뒷장을 안봐도 OK! 편의성 좋은 미니 달력 / 규칙적인 학습 습관을 만드는 루틴 트래커 / 동기부여와 심리적 위로를 주는 이번 달 명언 / 취약점 보안을 위한 과목별 리뷰 / 학업 성취도와 성장 과정을 확인하는 이번 달 등급">
+     <div class="overlap">
+      <img class="a" src="images/photo_a.jpg" alt="">
+      <img class="b" src="images/photo_b.jpg" alt="">
+     </div>
+    </div>
+   </div>
+
+   <div class="m-blk">
+    <div class="m-blk" style="gap:20px">
+     <img src="images/sec1.png" alt="" style="width:222px;height:28px;object-fit:contain">
+     <h2 class="m-h">이런 점이 특히 좋아요.</h2>
+    </div>
+    <div class="m-card"><img src="images/feat1.jpg" alt="">
+     <div class="feat-t"><img class="n" src="images/num1.png" alt="01"><h3>명문대 멘토들의 노하우를 집약한<br>수능 맞춤 올인원 콘텐츠</h3><p>학사일정, 수능 D-Day 수록과 인강 진도,<br>교재 계획, 성적 관리까지 수험생에게 꼭 필요한<br>학습 콘텐츠를 모두 담았습니다.</p></div></div>
+    <div class="m-card"><img src="images/feat2.jpg" alt="">
+     <div class="feat-t"><img class="n" src="images/num2.png" alt="02"><h3>책상에선 스탠드로,<br>이동할 땐 플래너로 (2-Way)</h3><p>받침대를 세우면 탁상형 캘린더가 되고,<br>접으면 가방에 쏙 들어가는 휴대용 플래너가 됩니다.<br>언제 어디서나 끊김 없이 학습 흐름을 이어가세요.</p></div></div>
+    <div class="m-card"><img src="images/feat3.jpg" alt="">
+     <div class="feat-t"><img class="n" src="images/num3.png" alt="03"><h3>비침 걱정 없는 120g 모조지와<br>탄탄한 트윈링</h3><p>화이트 모조지로 뒷면 비침과 눈부심이 적습니다.<br>360도 부드럽게 넘어가는 트윈링 제본으로<br>필기감과 편리함을 모두 잡았습니다.</p></div></div>
+    <div class="m-card"><img src="images/feat4.jpg" alt="">
+     <div class="feat-t"><img class="n" src="images/num4.png" alt="04"><h3>수험생의 합격을 응원하는<br>가장 센스 있는 선물</h3><p>새로운 학기와 시험을 준비하는 자녀와 친구에게,<br>매일의 공부를 든든하게 지켜줄<br>실전형 플래닝 캘린더를 선물하세요.</p></div></div>
+   </div>
+
+   <div class="m-blk">
+    <div class="m-blk" style="gap:8px;position:relative;width:auto">
+     <h2 class="m-h">수험생에게 진짜 <span class="hl-m">필요한 칸</span>은<br>따로 있으니까요.</h2>
+     <p class="m-sub">치열한 수험 생활을 먼저 겪어본 명문대 멘토들의<br>리얼한 피드백을 담아 오직 성적 상승과<br>실전에 직결되는 밀도 높은 구성을 완성했습니다.</p>
+     <img src="images/emblem.png" alt="" style="position:absolute;right:-26.5px;top:-11px;width:70px;height:70px">
+    </div>
+    <div class="fit-box"><div class="mentor-m fit" data-w="350">
+     <div class="mentor-in">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%">
+       <span class="handle"></span>
+       <p class="notice">명문대생 멘토들이 입장하셨습니다.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;width:100%">
+       <div class="mentor-list">
+        <div class="mentor"><p class="nm">멘토A</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 15 9"><use href="#tail-m" fill="#fff"/></svg><p class="bub">6평 이후 쏟아지는 N제와 기출의 홍수 속에서<br>흔들리지 않으려면 <span class="mk">‘교재 계획표’</span>가 필수예요.<br>문제집마다 목표 완료일과 진도를 체계적으로<br>관리할 수 있어 가장 유용한 페이지입니다.</p></div></div>
+        <div class="mentor"><p class="nm">멘토B</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 15 9"><use href="#tail-m" fill="#fff"/></svg><p class="bub">불필요한 요소는 덜어내고 일정을 기록하는<br>월력 공간을 넓히면 좋을거 같아요. 뒷면에는<br>매달 실천할 <span class="mk">‘생활 루틴 목표’</span>와 <span class="mk">‘목표 달성도’</span>를 직관적으로 체크할 수 있다면 학습 방향을<br>잃지 않게 도와줄겁니다.</p></div></div>
+        <div class="mentor"><p class="nm">멘토C</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 15 9"><use href="#tail-m" fill="#fff"/></svg><p class="bub">멘토링을 해보면 학생마다 인강 수강 시기와<br>속도가 천차만별이에요. 강사가 짜준 일괄<br>커리큘럼에 끌려다니지 않고, 나만의 속도로<br>진도와 복습을 완주하려면 전용 <span class="mk">‘인강 계획표’</span>가 꼭 필요합니다.</p></div></div>
+        <div class="mentor"><p class="nm">멘토D</p><div class="bub-wrap"><svg class="bub-tail" viewBox="0 0 15 9"><use href="#tail-m" fill="#fff"/></svg><p class="bub">잃어버리기 쉬운 모의고사 성적표를<br><span class="mk">‘성적 관리표’</span>에 모아 성장을 한눈에 확인하고,<br><span class="mk">‘월간 피드백(리뷰)’</span> 칸에 잘한 점과 아쉬운 점을 기록하며 다음 달을 더 완벽하게 준비할 수<br>있습니다.</p></div></div>
+       </div>
+       <p class="mentor-note">* 위 내용은 2026년 7월 진행된 잇올 멘토단 의견 조사의 실제 응답 중 일부를 발췌 및 편집하여 수록하였습니다.</p>
+      </div>
+     </div>
+    </div></div>
+   </div>
+  </section>
+
+  <div class="m-mid">
+   <img src="images/mid.jpg" alt="">
+   <div class="grad"></div>
+   <div class="txt">
+    <p class="t1">계획만 세우다 지치는 플래너는 그만.</p>
+    <p class="t2">모의고사, 그리고 수능까지<br>흔들리지 않는 페이스를 만듭니다.</p>
+   </div>
+  </div>
+
+  <section class="m-sec m-s2">
+   <div class="m-blk">
+    <div class="m-blk" style="gap:20px">
+     <img src="images/sec2.png" alt="" style="width:224px;height:28px;object-fit:contain">
+     <div class="m-blk" style="gap:8px">
+      <p class="m-sub">총 13개월의 학습 여정을 담아</p>
+      <h2 class="m-h">계획부터 실행, 기록과 점검까지<br>체계적으로 구성했어요.</h2>
+     </div>
+    </div>
+    <div class="toc m-toc">
+     <div class="rows">
+      <div class="r">표지<i></i>2P</div>
+      <div class="r">플래너 사용 설명서<i></i>2P</div>
+      <div class="r">목표 작성<i></i>1P</div>
+      <div class="r">연간 달력<i></i>1P</div>
+      <div class="r">연간 계획표<i></i>1P</div>
+      <div class="r">월간 달력 &amp; 프리뷰<i></i>26P</div>
+      <div class="r">주간계획표<i></i>6P</div>
+      <div class="r">시간표<i></i>2P</div>
+      <div class="r">성적 관리표<i></i>4P</div>
+      <div class="r">인강 계획표<i></i>6P</div>
+      <div class="r">교재 계획표<i></i>6P</div>
+      <div class="r">메모장<i></i>9P</div>
+     </div>
+     <hr class="end">
+     <div class="total"><span>TOTAL</span><span>66P</span></div>
+    </div>
+   </div>
+
+   <div class="fit-box"><div class="board board-m fit" data-w="350">
+    <div class="hd"><img src="images/detail_logo.png" width="95" height="12" alt="Detail"><img src="images/detail_brand.png" width="107" height="14" alt=""></div>
+
+    <div class="tx" style="left:38px;top:71px"><b>흔들리는 수험 생활의 나침반, 목표 설정</b><span>슬럼프 때마다 초심을 다잡도록<br>올해의 최종 목표와 다짐을 기록합니다.</span></div>
+    <img class="ab" src="images/g_year.png" style="left:6.36px;top:138.03px;width:334.6px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:35px;top:135px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:84px;top:530px" alt="">
+    <div class="tx" style="left:90px;top:546px"><b>1년의 수험 레이스를<br>한눈에 꿰뚫는 연간 로드맵</b><span>12개월의 전체 학습 흐름과 시기별<br>핵심 과제를 설계합니다.</span></div>
+
+    <div class="tx" style="left:22px;top:665px"><b>한 달의 공부 기준을 세팅하는<br>월간 프리뷰 &amp; 루틴 트래커</b><span>과목별 목표 성취도와 매일의 공부 루틴을 체크하며<br>공부 습관을 잡습니다.</span></div>
+    <img class="ab" src="images/p_month1.png" style="left:19px;top:758px;width:328px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:16px;top:755px" alt="">
+
+    <div class="tx" style="left:22px;top:1008px"><b>수능 학사일정과 D-Day가 수록된<br>실전형 월간 캘린더</b><span>모의고사·학사일정·수능 D-Day는 기본,<br>매일의 달성도와 순공 시간을 기록합니다.</span></div>
+    <img class="ab" src="images/p_month2.png" style="left:19px;top:1099px;width:328px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:16px;top:1096px" alt="">
+
+    <div class="tx r" style="left:25px;top:1349px"><b>밀리지 않는 공부를 만드는 주간 계획표</b><span>한 달 목표를 주 단위로 잘게 쪼개고,<br>체크리스트로 완료 여부를 꼼꼼히 관리합니다.</span></div>
+    <img class="ab" src="images/g_week.png" style="left:13px;top:1416px;width:327.9px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:249px;top:1413px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:84px;top:1640px" alt="">
+    <div class="tx" style="left:90px;top:1656px"><b>숨은 자투리 시간까지 찾아내는<br>순공 시간표</b><span>학교·학원 등 요일별 고정 일정을 파악해<br>나만의 진짜 순공 시간을 확보합니다.</span></div>
+
+    <div class="tx" style="left:22px;top:1775px"><b>성적의 흐름을 읽고 약점을 보완하는 성적 관리표</b><span>모의고사와 내신 성적 추이를 한눈에 비교하고<br>다음 시험의 전략을 세웁니다.</span></div>
+    <img class="ab" src="images/g_score.png" style="left:19px;top:1842px;width:327.9px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:16px;top:1839px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:90px;top:2066px" alt="">
+    <div class="tx" style="left:96px;top:2082px"><b>밀리지 않는 완강 메이트, 인강 계획표</b><span>듣기만 하고 끝나는 인강이 되지 않도록,<br>진도 체크부터 복습까지 빈틈없이 관리합니다.</span></div>
+
+    <div class="tx" style="left:22px;top:2176px"><b>성적 상승의 핵심, 교재 계획표</b><span>문제집과 기출 교재의 일정을 기록해<br>취약 단원 없이 완벽히 마스터합니다.</span></div>
+    <img class="ab" src="images/g_book.png" style="left:19px;top:2243px;width:329.4px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:16px;top:2240px" alt="">
+    <img class="ab plus" src="images/plus.png" style="left:39px;top:2599px" alt="">
+    <div class="tx" style="left:45px;top:2615px"><b>활용도 좋은 메모장</b><span>줄노트와 무지노트를 활용해 자유롭게 기록합니다.</span></div>
+   </div></div>
+
+   <h2 class="m-h" style="font-weight:500">빈틈없는 하루가 모여<br><strong class="hl-m" style="font-weight:800">가장 확실한 결과</strong>를 만듭니다.</h2>
+  </section>
+
+  <div class="gal m-gal">
+   <img class="g1" src="images/gal1.jpg" alt="">
+   <img class="g2" src="images/gal2.jpg" alt="">
+   <img class="g3" src="images/gal3.jpg" alt="">
+  </div>
+
+  <section class="m-sec">
+   <div class="m-blk">
+    <div class="m-blk" style="gap:20px">
+     <img src="images/sec3.png" alt="" style="width:224px;height:28px;object-fit:contain">
+     <div class="m-blk" style="gap:8px">
+      <p class="m-sub">캘린더의 주요 기능과 활용 방법을 쉽게 정리했어요.</p>
+      <h2 class="m-h">사용 가이드를 참고해<br>나만의 학습 계획을 시작해 보세요.</h2>
+     </div>
+    </div>
+    <div class="fit-box"><div class="guide guide-m fit js-guide" data-w="350">
+     <div class="sl on">
+      <svg class="tab" viewBox="0 0 350 16"><use href="#tab-m" fill="#e4efcf"/></svg>
+      <div class="bd col" style="background:#e4efcf"><p>루틴 트래커로 일일 루틴 이행 현황을 관리합니다.</p><img class="m-shadow" src="images/guide1.png" width="317" height="52" alt=""></div>
+     </div>
+     <div class="sl">
+      <svg class="tab" viewBox="0 0 350 16"><use href="#tab-m" fill="#d3f3ff"/></svg>
+      <div class="bd rowx" style="background:#d3f3ff"><p>이달의 할일과<br>일정을 계획하고<br>기록합니다.</p><img class="m-shadow" src="images/guide2.png" width="192" height="80" alt=""></div>
+     </div>
+     <div class="sl">
+      <svg class="tab" viewBox="0 0 350 16"><use href="#tab-m" fill="#e4efcf"/></svg>
+      <div class="bd rowx" style="background:#e4efcf"><p>월간 목표와<br>달성 항목을<br>기록합니다.</p><img class="m-shadow" src="images/guide3.png" width="190" height="79" alt=""></div>
+     </div>
+     <div class="sl">
+      <svg class="tab" viewBox="0 0 350 16"><use href="#tab-m" fill="#d3f3ff"/></svg>
+      <div class="bd col" style="background:#d3f3ff"><p>루틴 트래커로 일일 루틴 이행 현황을 관리합니다.</p><img class="m-shadow" src="images/guide4.png" width="230" height="80" alt=""></div>
+     </div>
+    </div></div>
+   </div>
+  </section>
+ </div>
+</div>
+
+<script>
+(function(){
+  /* 고정폭 블록 화면 맞춤 (PC: 847 이하일 때 축소 / MO: 350 기준 비율 맞춤) */
+  function fitAll(){
+    document.querySelectorAll('.fit').forEach(function(el){
+      if(getComputedStyle(el.closest('.pc,.m')).display==='none') return;
+      var base=+el.dataset.w, box=el.parentElement, avail=box.clientWidth;
+      var s=avail/base; if(el.dataset.max) s=Math.min(s,+el.dataset.max);
+      el.style.width=base+'px';
+      if(s===1){el.style.transform='';el.style.margin='0 auto';box.style.height='';return;}
+      el.style.transform='scale('+s+')';el.style.margin='0';
+      box.style.height=(el.offsetHeight*s)+'px';
+    });
+  }
+  window.addEventListener('resize',fitAll);
+  window.addEventListener('load',fitAll);
+  fitAll();
+
+  /* 체크리스트 토글: 화면 진입 시 위에서부터 순서대로 1회 활성화 */
+  var STEP=700;
+  document.querySelectorAll('.js-check').forEach(function(box){
+    var tgs=box.querySelectorAll('.tg');
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        tgs.forEach(function(t,i){setTimeout(function(){t.classList.add('on')},200+i*STEP)});
+        io.disconnect();
+      });
+    },{threshold:.4});
+    io.observe(box);
+  });
+
+  /* 유의사항 아코디언 */
+  document.querySelectorAll('.acc-hd').forEach(function(b){
+    b.addEventListener('click',function(){
+      var a=b.closest('.acc'); var o=a.classList.toggle('open');
+      b.setAttribute('aria-expanded',o); fitAll();
+    });
+  });
+
+  /* 사용 가이드: 2초 간격 무한 반복 교체 */
+  document.querySelectorAll('.js-guide').forEach(function(g){
+    var sl=g.querySelectorAll('.sl'), i=0;
+    setInterval(function(){
+      sl[i].classList.remove('on'); i=(i+1)%sl.length; sl[i].classList.add('on');
+    },2000);
+  });
+})();
+</script>
+</body>
+</html>
